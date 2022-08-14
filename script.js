@@ -1,96 +1,65 @@
-const gameContainer = document.getElementById("game");
-let card1 = null;
-let card2 = null;
-let cardsFlipped = 0;
-let noClicking = false;
+const imageFileInput = document.querySelector("#imageFileInput");
+const canvas = document.querySelector("#meme");
+const topTextInput = document.querySelector("#topTextInput");
+const bottomTextInput = document.querySelector("#bottomTextInput");
 
-const COLORS = [
-  "red",
-  "blue",
-  "green",
-  "orange",
-  "purple",
-  "red",
-  "blue",
-  "green",
-  "orange",
-  "purple"
-];
+let image;
 
-function shuffle(array) {
-  let counter = array.length;
+imageFileInput.addEventListener("change", (e) => {
+  const imageDataUrl = URL.createObjectURL(e.target.files[0]);
 
-  // While there are elements in the array
-  while (counter > 0) {
-    // Pick a random index
-    let index = Math.floor(Math.random() * counter);
+  image = new Image();
+  image.src = imageDataUrl;
 
-    // Decrease counter by 1
-    counter--;
+  image.addEventListener(
+    "load",
+    () => {
+      updateMemeCanvas(
+        canvas,
+        image,
+        topTextInput.value,
+        bottomTextInput.value
+      );
+    },
+    { once: true }
+  );
+});
 
-    // And swap the last element with it
-    let temp = array[counter];
-    array[counter] = array[index];
-    array[index] = temp;
-  }
+topTextInput.addEventListener("change", () => {
+  updateMemeCanvas(canvas, image, topTextInput.value, bottomTextInput.value);
+});
 
-  return array;
+bottomTextInput.addEventListener("change", () => {
+  updateMemeCanvas(canvas, image, topTextInput.value, bottomTextInput.value);
+});
+
+function updateMemeCanvas(canvas, image, topText, bottomText) {
+  const ctx = canvas.getContext("2d");
+  const width = image.width;
+  const height = image.height;
+  const fontSize = Math.floor(width / 10);
+  const yOffset = height / 25;
+
+  // Update canvas background
+  canvas.width = width;
+  canvas.height = height;
+  ctx.drawImage(image, 0, 0);
+
+  // Prepare text
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = Math.floor(fontSize / 4);
+  ctx.fillStyle = "white";
+  ctx.textAlign = "center";
+  ctx.lineJoin = "round";
+  ctx.font = `${fontSize}px sans-serif`;
+
+  // Add top text
+  ctx.textBaseline = "top";
+  ctx.strokeText(topText, width / 2, yOffset);
+  ctx.fillText(topText, width / 2, yOffset);
+
+  // Add bottom text
+  ctx.textBaseline = "bottom";
+  ctx.strokeText(bottomText, width / 2, height - yOffset);
+  ctx.fillText(bottomText, width / 2, height - yOffset);
 }
-
-let shuffledColors = shuffle(COLORS);
-
-// this function loops over the array of colors
-// it creates a new div and gives it a class with the value of the color
-// it also adds an event listener for a click for each card
-function createDivsForColors(colorArray) {
-  for (let color of colorArray) {
-    const newDiv = document.createElement("div");
-    newDiv.classList.add(color);
-    newDiv.addEventListener("click", handleCardClick);
-    gameContainer.append(newDiv);
-  }
-}
-
-function handleCardClick(e) {
-  if (noClicking) return;
-  if (e.target.classList.contains("flipped")) return;
-
-  let currentCard = e.target;
-  currentCard.style.backgroundColor = currentCard.classList[0];
-
-  if (!card1 || !card2) {
-    currentCard.classList.add("flipped");
-    card1 = card1 || currentCard;
-    card2 = currentCard === card1 ? null : currentCard;
-  }
-
-  if (card1 && card2) {
-    noClicking = true;
-    // debugger
-    let gif1 = card1.className;
-    let gif2 = card2.className;
-
-    if (gif1 === gif2) {
-      cardsFlipped += 2;
-      card1.removeEventListener("click", handleCardClick);
-      card2.removeEventListener("click", handleCardClick);
-      card1 = null;
-      card2 = null;
-      noClicking = false;
-    } else {
-      setTimeout(function() {
-        card1.style.backgroundColor = "";
-        card2.style.backgroundColor = "";
-        card1.classList.remove("flipped");
-        card2.classList.remove("flipped");
-        card1 = null;
-        card2 = null;
-        noClicking = false;
-      }, 1000);
-    }
-  }
-
-  if (cardsFlipped === COLORS.length) alert("game over!");
-}
-
-createDivsForColors(shuffledColors);

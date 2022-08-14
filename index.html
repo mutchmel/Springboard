@@ -2,14 +2,24 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Memory Game!</title>
+    <title>Meme Generator</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <h1>
-      Memory Game!
+      Meme Generator
     </h1>
-    <div id="game">
+    <div class="meme-generator">
+      <label>Select an Image</label>
+      <input type="file" id="imageFileInput">
+    
+      <label>Top Text</label>
+      <input type="text" id="topTextInput">
+    
+      <label>Bottom Text</label>
+      <input type="text" id="bottomTextInput">
+    
+      <canvas id="meme"></canvas>
     </div>
     <script src="script.js"></script>
   </body>
